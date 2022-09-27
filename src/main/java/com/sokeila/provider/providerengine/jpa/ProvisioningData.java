@@ -15,6 +15,15 @@ public class ProvisioningData {
     @Column(name = "c_provider_type")
     private ProviderType providerType;
 
+    @Column(name = "c_processing")
+    private boolean processing;
+
+    @Column(name = "c_handled")
+    private boolean handled;
+
+    @Column(name = "c_failed_count")
+    private int failedCount;
+
     public Long getId() {
         return id;
     }
@@ -31,12 +40,37 @@ public class ProvisioningData {
         this.providerType = providerType;
     }
 
+    public boolean isProcessing() {
+        return processing;
+    }
+
+    public void setProcessing(boolean processing) {
+        this.processing = processing;
+    }
+
+    public boolean isHandled() {
+        return handled;
+    }
+
+    public void setHandled(boolean handled) {
+        this.handled = handled;
+    }
+
+    public int getFailedCount() {
+        return failedCount;
+    }
+
+    public void setFailedCount(int failedCount) {
+        this.failedCount = failedCount;
+    }
+
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ProvisioningData{");
-        sb.append("id=").append(id);
-        sb.append(", providerType=").append(providerType);
-        sb.append('}');
-        return sb.toString();
+        return "ProvisioningData{" +
+                "id=" + id +
+                ", providerType=" + providerType +
+                ", handled=" + handled +
+                ", failedCount=" + failedCount +
+                '}';
     }
 }
