@@ -1,18 +1,16 @@
 package com.sokeila.provider.providerengine.console;
 
-import com.sokeila.provider.providerengine.AbstractProviderEngine;
 import com.sokeila.provider.providerengine.ProviderDataConsumer;
 import com.sokeila.provider.providerengine.jpa.ProvisioningData;
 import com.sokeila.provider.providerengine.jpa.ProvisioningDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 @Service
 @Qualifier("consoleConsumer")
@@ -22,8 +20,11 @@ public class ConsoleProviderDataConsumer implements ProviderDataConsumer {
 
     private final ProvisioningDataRepository provisioningDataRepository;
 
-    public ConsoleProviderDataConsumer(ProvisioningDataRepository provisioningDataRepository) {
+    private final ConsoleProviderClient consoleProviderClient;
+
+    public ConsoleProviderDataConsumer(ProvisioningDataRepository provisioningDataRepository, ConsoleProviderClient consoleProviderClient) {
         this.provisioningDataRepository = provisioningDataRepository;
+        this.consoleProviderClient = consoleProviderClient;
     }
 
     @Override
@@ -33,23 +34,33 @@ public class ConsoleProviderDataConsumer implements ProviderDataConsumer {
 
     @Override
     public void run() {
-        Random random = new Random();
-        try {
-            while (true) {
+        while (true) {
+            try {
                 ProvisioningData provisioningData = blockingQueue.take();
-                Thread.sleep(random.nextInt(2000 - 1000) + 1000);
-                int failed = random.nextInt(3);
-                if(failed == 1) {
-                    provisioningData.setFailedCount(provisioningData.getFailedCount() + 1);
-                } else {
-                    provisioningData.setHandled(true);
+                try {
+                    boolean status = consoleProviderClient.provision(provisioningData);
+
+                    if (!status) {
+                        provisioningData.setFailedCount(provisioningData.getFailedCount() + 1);
+                    } else {
+                        provisioningData.setHandled(true);
+                    }
+                    provisioningData.setProcessing(false);
+                    provisioningDataRepository.saveAndFlush(provisioningData);
+                    log.debug("Result: {}", provisioningData);
+                } catch (Exception e) {
+                    log.error("Provisioning exception", e);
+                    Optional<ProvisioningData> provisioningDataOpt = provisioningDataRepository.findById(provisioningData.getId());
+                    if(provisioningDataOpt.isPresent()) {
+                        provisioningData = provisioningDataOpt.get();
+                        provisioningData.setFailedCount(provisioningData.getFailedCount() + 1);
+                        provisioningData.setProcessing(false);
+                        provisioningDataRepository.saveAndFlush(provisioningData);
+                    }
                 }
-                provisioningData.setProcessing(false);
-                provisioningDataRepository.saveAndFlush(provisioningData);
-                log.debug("Result: {}", provisioningData);
+            } catch (Exception e) {
+                log.error("Failed to take data from blockingQueue", e);
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 }

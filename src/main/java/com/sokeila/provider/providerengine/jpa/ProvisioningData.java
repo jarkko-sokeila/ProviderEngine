@@ -8,6 +8,7 @@ import javax.persistence.*;
 @Table(name = "t_provisioing_data")
 public class ProvisioningData {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "c_id")
     private Long id;
 
@@ -23,6 +24,9 @@ public class ProvisioningData {
 
     @Column(name = "c_failed_count")
     private int failedCount;
+
+    @Column(name = "c_account_name")
+    private String accountName;
 
     public Long getId() {
         return id;
@@ -62,6 +66,14 @@ public class ProvisioningData {
 
     public void setFailedCount(int failedCount) {
         this.failedCount = failedCount;
+    }
+
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
     }
 
     @Override

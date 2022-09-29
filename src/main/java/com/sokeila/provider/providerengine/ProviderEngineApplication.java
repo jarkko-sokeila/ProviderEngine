@@ -29,6 +29,7 @@ public class ProviderEngineApplication {
                 provData.setProcessing(false);
                 provData.setHandled(false);
                 provData.setFailedCount(0);
+                provData.setAccountName(null);
             });
             provisioningDataRepository.saveAllAndFlush(provisioningData);
         };
