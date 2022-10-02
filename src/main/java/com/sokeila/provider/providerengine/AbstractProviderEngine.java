@@ -21,57 +21,44 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class AbstractProviderEngine implements Runnable { // implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(AbstractProviderEngine.class);
 
-    private final ProvisioningDataRepository provisioningDataRepository;
-    private final BlockingQueue<ProvisioningData> blockingQueue = new LinkedBlockingQueue<>(2);
+    protected final ProvisioningDataRepository provisioningDataRepository;
+
+    private final TaskExecutor taskExecutor;
+    private final BlockingQueue<ProvisioningData> blockingQueue = new LinkedBlockingQueue<>(8);
 
     public AbstractProviderEngine(TaskExecutor taskExecutor, ProvisioningDataRepository provisioningDataRepository, ProviderDataConsumer providerDataConsumer) {
+        this.taskExecutor = taskExecutor;
         this.provisioningDataRepository = provisioningDataRepository;
-        providerDataConsumer.setBlockingQueue(blockingQueue);
-        taskExecutor.execute(providerDataConsumer);
+        //providerDataConsumer.setBlockingQueue(blockingQueue);
+        //taskExecutor.execute(providerDataConsumer);
     }
+
+    protected abstract List<ProviderDataConsumer> getConsumers();
 
     @Override
     public void run() {
-        Pageable pageable = PageRequest.of(0, 4);
-        try {
-            do {
+        getConsumers().forEach(providerDataConsumer -> {
+            providerDataConsumer.setBlockingQueue(blockingQueue);
+            taskExecutor.execute(providerDataConsumer);
+        });
+
+        Pageable pageable = PageRequest.of(0, 16);
+        do {
+            try {
                 List<ProvisioningData> provisioningData = provisioningDataRepository.findProvisioningDataByProviderTypeAndHandledFalseAndProcessingFalse(getProviderType(), pageable);
-                log.debug("Load data for provisioning. Fetched count {}", provisioningData.size());
+                if(provisioningData.size() > 0) {
+                    log.debug("Load data for provisioning. Fetched count {}", provisioningData.size());
+                }
                 //provisioningData.forEach(provData -> log.debug("{}", provData));
-                for(ProvisioningData provData: provisioningData) {
+                for (ProvisioningData provData : provisioningData) {
                     provData.setProcessing(true);
                     provisioningDataRepository.saveAndFlush(provData);
                     blockingQueue.put(provData);
                 }
                 Thread.sleep(1000);
-            } while (true);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    /*@Override
-    public void run(ApplicationArguments args) {
-        Pageable pageable = PageRequest.of(0, 4);
-        try {
-            do {
-                List<ProvisioningData> provisioningData = provisioningDataRepository.findProvisioningDataByProviderTypeAndHandledFalseAndProcessingFalse(getProviderType(), pageable);
-                log.debug("Load data for provisioning. Fetched count {}", provisioningData.size());
-                //provisioningData.forEach(provData -> log.debug("{}", provData));
-                for(ProvisioningData provData: provisioningData) {
-                    provData.setProcessing(true);
-                    provisioningDataRepository.saveAndFlush(provData);
-                    blockingQueue.put(provData);
-                }
-                Thread.sleep(1000);
-            } while (true);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }*/
-
-    public BlockingQueue<ProvisioningData> getBlockingQueue() {
-        return blockingQueue;
+            } catch (Exception e) {
+            }
+        } while (true);
     }
 
     protected abstract ProviderType getProviderType();

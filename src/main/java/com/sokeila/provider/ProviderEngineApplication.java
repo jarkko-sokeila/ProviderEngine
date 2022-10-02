@@ -1,4 +1,4 @@
-package com.sokeila.provider.providerengine;
+package com.sokeila.provider;
 
 import com.sokeila.provider.providerengine.jpa.ProvisioningData;
 import com.sokeila.provider.providerengine.jpa.ProvisioningDataRepository;
@@ -8,10 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 
-import java.util.Arrays;
 import java.util.List;
 
 @SpringBootApplication

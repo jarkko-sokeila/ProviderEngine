@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 public class ProviderEngine implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(ProviderEngine.class);
 
-    public static int counter;
-
     private final TaskExecutor taskExecutor;
     private final ProvisioningDataRepository provisioningDataRepository;
 
@@ -32,18 +30,9 @@ public class ProviderEngine implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         log.info("Application started with option names : {}", args.getOptionNames());
-        log.info("Increment counter");
-        counter++;
 
+        log.info("Start provider engines");
         taskExecutor.execute(consoleProviderEngine);
-        taskExecutor.execute(sqlProviderEngine);
-
-        /*Iterable<ProvisioningData> data = provisioningDataRepository.findAll();
-        data.forEach(provisioningData -> log.debug("{}", provisioningData));
-
-        Pageable pageable = PageRequest.of(0, 4);
-        log.debug("Console data");
-        List<ProvisioningData> consoleData = provisioningDataRepository.findProvisioningDataByProviderType(ProviderType.CONSOLE, pageable);
-        consoleData.forEach(provisioningData -> log.debug("{}", provisioningData));*/
+        //taskExecutor.execute(sqlProviderEngine);
     }
 }

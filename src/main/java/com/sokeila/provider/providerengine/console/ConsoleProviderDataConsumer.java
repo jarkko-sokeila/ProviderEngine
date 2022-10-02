@@ -1,5 +1,6 @@
 package com.sokeila.provider.providerengine.console;
 
+import com.sokeila.provider.exception.ProvisioningFailedException;
 import com.sokeila.provider.providerengine.ProviderDataConsumer;
 import com.sokeila.provider.providerengine.jpa.ProvisioningData;
 import com.sokeila.provider.providerengine.jpa.ProvisioningDataRepository;
@@ -49,7 +50,12 @@ public class ConsoleProviderDataConsumer implements ProviderDataConsumer {
                     provisioningDataRepository.saveAndFlush(provisioningData);
                     log.debug("Result: {}", provisioningData);
                 } catch (Exception e) {
-                    log.error("Provisioning exception", e);
+                    if(e instanceof ProvisioningFailedException) {
+                        log.error("Provisioning failed");
+                    } else {
+                        log.error("Provisioning exception", e);
+                    }
+
                     Optional<ProvisioningData> provisioningDataOpt = provisioningDataRepository.findById(provisioningData.getId());
                     if(provisioningDataOpt.isPresent()) {
                         provisioningData = provisioningDataOpt.get();

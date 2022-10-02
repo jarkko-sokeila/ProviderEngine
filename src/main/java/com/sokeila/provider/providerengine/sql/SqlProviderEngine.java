@@ -8,11 +8,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class SqlProviderEngine extends AbstractProviderEngine {
 
     public SqlProviderEngine(TaskExecutor taskExecutor, ProvisioningDataRepository provisioningDataRepository, @Qualifier("sqlConsumer") ProviderDataConsumer sqlConsumer) {
         super(taskExecutor, provisioningDataRepository, sqlConsumer);
+    }
+
+    @Override
+    protected List<ProviderDataConsumer> getConsumers() {
+        return null;
     }
 
     @Override

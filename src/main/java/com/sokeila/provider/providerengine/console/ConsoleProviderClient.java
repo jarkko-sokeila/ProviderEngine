@@ -1,5 +1,6 @@
 package com.sokeila.provider.providerengine.console;
 
+import com.sokeila.provider.exception.ProvisioningFailedException;
 import com.sokeila.provider.providerengine.jpa.ProvisioningData;
 import com.sokeila.provider.providerengine.jpa.ProvisioningDataRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,8 @@ public class ConsoleProviderClient {
     public boolean provision(ProvisioningData provisioningData) {
         Random random = new Random();
         try {
-            Thread.sleep(random.nextInt(2000 - 1000) + 1000);
+            Thread.sleep(500);
+            //Thread.sleep(random.nextInt(2000 - 1000) + 1000);
         } catch (InterruptedException e) {
         }
 
@@ -30,10 +32,10 @@ public class ConsoleProviderClient {
         provisioningDataRepository.save(provisioningData);
 
         boolean result = random.nextBoolean();
-        if (true) {
-            throw new RuntimeException();
+        if (!result) {
+            throw new ProvisioningFailedException();
         }
 
-        return result;
+        return true;
     }
 }
