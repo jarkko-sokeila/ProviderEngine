@@ -1,7 +1,7 @@
 package com.sokeila.provider.providerengine.console;
 
 import com.sokeila.provider.providerengine.AbstractProviderEngine;
-import com.sokeila.provider.providerengine.ProviderDataConsumer;
+import com.sokeila.provider.providerengine.IProviderDataConsumer;
 import com.sokeila.provider.providerengine.ProviderType;
 import com.sokeila.provider.providerengine.jpa.ProvisioningDataRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,20 +14,20 @@ import java.util.List;
 @Component
 public class ConsoleProviderEngine extends AbstractProviderEngine {
 
-    private final ConsoleProviderClient consoleProviderClient;
+    private final ConsoleProviderDataHandler consoleProviderDataHandler;
 
-    public ConsoleProviderEngine(TaskExecutor taskExecutor, ProvisioningDataRepository provisioningDataRepository, @Qualifier("consoleConsumer") ProviderDataConsumer consoleConsumer, ConsoleProviderClient consoleProviderClient) {
-        super(taskExecutor, provisioningDataRepository, consoleConsumer);
-        this.consoleProviderClient = consoleProviderClient;
+    public ConsoleProviderEngine(TaskExecutor taskExecutor, ProvisioningDataRepository provisioningDataRepository, ConsoleProviderDataHandler consoleProviderDataHandler) {
+        super(taskExecutor, provisioningDataRepository);
+        this.consoleProviderDataHandler = consoleProviderDataHandler;
     }
 
     @Override
-    protected List<ProviderDataConsumer> getConsumers() {
-        List<ProviderDataConsumer> consumers = new ArrayList<>();
-        consumers.add(new ConsoleProviderDataConsumer(provisioningDataRepository, consoleProviderClient));
-        consumers.add(new ConsoleProviderDataConsumer(provisioningDataRepository, consoleProviderClient));
-        consumers.add(new ConsoleProviderDataConsumer(provisioningDataRepository, consoleProviderClient));
-        consumers.add(new ConsoleProviderDataConsumer(provisioningDataRepository, consoleProviderClient));
+    protected List<IProviderDataConsumer> getConsumers() {
+        List<IProviderDataConsumer> consumers = new ArrayList<>();
+        consumers.add(new ConsoleProviderDataConsumer(provisioningDataRepository, consoleProviderDataHandler));
+        consumers.add(new ConsoleProviderDataConsumer(provisioningDataRepository, consoleProviderDataHandler));
+        consumers.add(new ConsoleProviderDataConsumer(provisioningDataRepository, consoleProviderDataHandler));
+        consumers.add(new ConsoleProviderDataConsumer(provisioningDataRepository, consoleProviderDataHandler));
         return consumers;
     }
 

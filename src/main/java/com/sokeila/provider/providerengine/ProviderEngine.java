@@ -15,14 +15,11 @@ public class ProviderEngine implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(ProviderEngine.class);
 
     private final TaskExecutor taskExecutor;
-    private final ProvisioningDataRepository provisioningDataRepository;
-
     private final ConsoleProviderEngine consoleProviderEngine;
     private final SqlProviderEngine sqlProviderEngine;
 
-    public ProviderEngine(TaskExecutor taskExecutor, ProvisioningDataRepository provisioningDataRepository, ConsoleProviderEngine consoleProviderEngine, SqlProviderEngine sqlProviderEngine) {
+    public ProviderEngine(TaskExecutor taskExecutor, ConsoleProviderEngine consoleProviderEngine, SqlProviderEngine sqlProviderEngine) {
         this.taskExecutor = taskExecutor;
-        this.provisioningDataRepository = provisioningDataRepository;
         this.consoleProviderEngine = consoleProviderEngine;
         this.sqlProviderEngine = sqlProviderEngine;
     }
@@ -33,6 +30,6 @@ public class ProviderEngine implements ApplicationRunner {
 
         log.info("Start provider engines");
         taskExecutor.execute(consoleProviderEngine);
-        //taskExecutor.execute(sqlProviderEngine);
+        taskExecutor.execute(sqlProviderEngine);
     }
 }

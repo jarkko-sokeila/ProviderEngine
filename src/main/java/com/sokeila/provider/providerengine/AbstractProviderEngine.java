@@ -4,17 +4,11 @@ import com.sokeila.provider.providerengine.jpa.ProvisioningData;
 import com.sokeila.provider.providerengine.jpa.ProvisioningDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -26,14 +20,12 @@ public abstract class AbstractProviderEngine implements Runnable { // implements
     private final TaskExecutor taskExecutor;
     private final BlockingQueue<ProvisioningData> blockingQueue = new LinkedBlockingQueue<>(8);
 
-    public AbstractProviderEngine(TaskExecutor taskExecutor, ProvisioningDataRepository provisioningDataRepository, ProviderDataConsumer providerDataConsumer) {
+    public AbstractProviderEngine(TaskExecutor taskExecutor, ProvisioningDataRepository provisioningDataRepository) {
         this.taskExecutor = taskExecutor;
         this.provisioningDataRepository = provisioningDataRepository;
-        //providerDataConsumer.setBlockingQueue(blockingQueue);
-        //taskExecutor.execute(providerDataConsumer);
     }
 
-    protected abstract List<ProviderDataConsumer> getConsumers();
+    protected abstract List<IProviderDataConsumer> getConsumers();
 
     @Override
     public void run() {
@@ -47,9 +39,8 @@ public abstract class AbstractProviderEngine implements Runnable { // implements
             try {
                 List<ProvisioningData> provisioningData = provisioningDataRepository.findProvisioningDataByProviderTypeAndHandledFalseAndProcessingFalse(getProviderType(), pageable);
                 if(provisioningData.size() > 0) {
-                    log.debug("Load data for provisioning. Fetched count {}", provisioningData.size());
+                    log.debug("Load {} data for provisioning. Fetched count {}", getProviderType(), provisioningData.size());
                 }
-                //provisioningData.forEach(provData -> log.debug("{}", provData));
                 for (ProvisioningData provData : provisioningData) {
                     provData.setProcessing(true);
                     provisioningDataRepository.saveAndFlush(provData);

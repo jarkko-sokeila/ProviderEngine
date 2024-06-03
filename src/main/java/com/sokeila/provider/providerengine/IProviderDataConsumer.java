@@ -4,6 +4,6 @@ import com.sokeila.provider.providerengine.jpa.ProvisioningData;
 
 import java.util.concurrent.BlockingQueue;
 
-public interface ProviderDataConsumer extends Runnable {
+public interface IProviderDataConsumer extends Runnable {
     void setBlockingQueue(BlockingQueue<ProvisioningData> blockingQueue);
 }

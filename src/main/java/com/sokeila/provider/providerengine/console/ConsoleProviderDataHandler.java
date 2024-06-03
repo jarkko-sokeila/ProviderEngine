@@ -1,6 +1,6 @@
 package com.sokeila.provider.providerengine.console;
 
-import com.sokeila.provider.exception.ProvisioningFailedException;
+import com.sokeila.provider.providerengine.IProviderDataHandler;
 import com.sokeila.provider.providerengine.jpa.ProvisioningData;
 import com.sokeila.provider.providerengine.jpa.ProvisioningDataRepository;
 import org.springframework.stereotype.Service;
@@ -11,11 +11,11 @@ import java.util.Random;
 import java.util.UUID;
 
 @Service
-public class ConsoleProviderClient {
+public class ConsoleProviderDataHandler implements IProviderDataHandler {
 
     private final ProvisioningDataRepository provisioningDataRepository;
 
-    public ConsoleProviderClient(ProvisioningDataRepository provisioningDataRepository) {
+    public ConsoleProviderDataHandler(ProvisioningDataRepository provisioningDataRepository) {
         this.provisioningDataRepository = provisioningDataRepository;
     }
 
@@ -33,7 +33,7 @@ public class ConsoleProviderClient {
 
         boolean result = random.nextBoolean();
         if (!result) {
-            throw new ProvisioningFailedException();
+            //throw new ProvisioningFailedException();
         }
 
         return true;
